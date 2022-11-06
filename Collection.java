@@ -1,0 +1,132 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class Collection {
+    private final List<Singer> singers;
+    private final List<Album> albums;
+
+    public Collection() {
+        singers = new ArrayList<>();
+        albums = new ArrayList<>();
+    }
+
+    private Integer indexOfSingerById(int id) {
+        for (int i=0; i<singers.size(); i++) {
+            if (singers.get(i).getId() == id) {
+                return i;
+            }
+        }
+        return null;
+    }
+
+    private Integer indexOfAlbumById(int id) {
+        for (int i=0; i<albums.size(); i++) {
+            if (albums.get(i).getId() == id) {
+                return i;
+            }
+        }
+        return null;
+    }
+
+    private List<Integer> indicesOfAlbumsOfSingerById(int id) {
+        List<Integer> res = new ArrayList<>();
+        for (int i=0; i<albums.size(); i++) {
+            if (albums.get(i).getSinger().getId() == id) {
+                res.add(i);
+            }
+        }
+        return res;
+    }
+
+    // 5
+    public Singer getSingerById(int id) {
+        Integer i = indexOfSingerById(id);
+        if (i == null) {
+            return null;
+        }
+        return singers.get(i);
+    }
+
+    public Album getAlbumById(int id) {
+        Integer i = indexOfAlbumById(id);
+        if (i == null) {
+            return null;
+        }
+        return albums.get(i);
+    }
+
+    // 1
+    public void addSinger(Singer singer) {
+        if (indexOfSingerById(singer.getId()) != null) {
+            throw new IllegalArgumentException();
+        }
+        singers.add(singer);
+    }
+
+    // 2
+    public boolean deleteSingerById(int id) {
+        Integer i = indexOfSingerById(id);
+        if (i != null) {
+            singers.remove(i.intValue());
+            List<Integer> indices = indicesOfAlbumsOfSingerById(id);
+            for (Integer index : indices) {
+                albums.remove(index.intValue());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    // 3
+    public void addAlbum(int singerId, Album album) {
+        if (indexOfSingerById(singerId) == null) {
+            throw new IllegalArgumentException();
+        }
+        if (indexOfAlbumById(album.getId()) != null) {
+            throw new IllegalArgumentException();
+        }
+        albums.add(album);
+    }
+
+    // 4
+    public boolean deleteAlbumById(int id) {
+        Integer i = indexOfAlbumById(id);
+        if (i != null) {
+            albums.remove(i.intValue());
+            return true;
+        }
+        return false;
+    }
+
+    // 6
+    public Integer countAlbumsOfSingerById(int id) {
+        if (indexOfSingerById(id) == null) {
+            return null;
+        }
+        List<Integer> indices = indicesOfAlbumsOfSingerById(id);
+        return indices.size();
+    }
+
+    // 7
+    public List<Album> getAlbumsCopy() {
+        return new ArrayList<>(albums);
+    }
+
+    // 8
+    public List<Album> getAlbumsOfSingerById(int id) {
+        if (indexOfSingerById(id) == null) {
+            return null;
+        }
+        List<Integer> indices = indicesOfAlbumsOfSingerById(id);
+        List<Album> res = new ArrayList<>();
+        for (Integer index : indices) {
+            res.add(albums.get(index));
+        }
+        return res;
+    }
+
+    // 9
+    public List<Singer> getSingersCopy() {
+        return new ArrayList<>(singers);
+    }
+}
