@@ -1,13 +1,13 @@
 public class Singer {
-    private final int id;
+    private final Integer id;
     private String name;
 
-    public Singer(int id, String name) {
+    public Singer(Integer id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 

@@ -1,11 +1,11 @@
 public class Album {
-    private final int id;
+    private final Integer id;
     private final Singer singer;
     private String name;
-    private int year; // released
+    private Integer year; // released
     private String genre;
 
-    public Album(int id, Singer singer, String name, int year, String genre) {
+    public Album(Integer id, Singer singer, String name, Integer year, String genre) {
         this.id = id;
         this.singer = singer;
         this.name = name;
@@ -13,7 +13,7 @@ public class Album {
         this.genre = genre;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -25,7 +25,7 @@ public class Album {
         return name;
     }
 
-    public int getYear() {
+    public Integer getYear() {
         return year;
     }
 
@@ -37,7 +37,7 @@ public class Album {
         this.name = name;
     }
 
-    public void setYear(int year) {
+    public void setYear(Integer year) {
         this.year = year;
     }
 
