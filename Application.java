@@ -32,9 +32,10 @@ public class Application {
         addAlbumToPrevSinger("album_1_2", 2118, "Rock1");
 
         addSinger("singer_2");
-        addAlbumToPrevSinger("album_2_0", 2212, "Metal2");
-        addAlbumToPrevSinger("album_2_1", 2214, "Pop2");
-        addAlbumToPrevSinger("album_2_2", 2218, "Rock2");
+
+        addSinger("singer_3");
+        addAlbumToPrevSinger("album_3_0", 2312, "Metal3");
+        addAlbumToPrevSinger("album_3_1", 2314, "Pop3");
     }
 
     public void test1() {
@@ -50,7 +51,7 @@ public class Application {
         for (int i=0; i<100; i++) {
             collection.toXmlFile(xmlFile, dtdFile);
             collection.clear();
-            collection.fromXmlFile(xmlFile, dtdFile);
+            collection.fromXmlFile(xmlFile);
         }
 
         String str2 = collection.toXmlString(dtdFile);

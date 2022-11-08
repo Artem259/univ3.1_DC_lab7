@@ -9,7 +9,9 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 public class Collection {
     private final List<Singer> singers;
@@ -246,12 +248,29 @@ public class Collection {
         }
     }
 
-    public void fromXmlFile(File xmlFile, File dtdFile) {
+    public void fromXmlFile(File xmlFile) {
         clear();
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setValidating(true);
         Document doc = null;
         try {
             DocumentBuilder db = dbf.newDocumentBuilder();
+            db.setErrorHandler(new ErrorHandler() {
+                @Override
+                public void warning(SAXParseException exception) {
+                    System.out.println("Warning! " + exception.getMessage() + " Line: " + exception.getLineNumber());
+                }
+
+                @Override
+                public void error(SAXParseException exception) {
+                    System.out.println("Error! " + exception.getMessage() + " Line: " + exception.getLineNumber());
+                }
+
+                @Override
+                public void fatalError(SAXParseException exception) {
+                    System.out.println("Fatal error! " + exception.getMessage() + " Line: " + exception.getLineNumber());
+                }
+            });
             doc = db.parse(xmlFile);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
