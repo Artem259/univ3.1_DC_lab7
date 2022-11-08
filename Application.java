@@ -1,10 +1,14 @@
+import java.io.File;
+
 public class Application {
     private final Collection collection;
-    private final String dtdPath;
+    private final File xmlFile;
+    private final File dtdFile;
 
-    public Application(String dtdPath) {
-        collection = new Collection();
-        this.dtdPath = dtdPath;
+    public Application(File dtdFile) {
+        this.collection = new Collection();
+        this.xmlFile = new File("files", "xml_file.xml");
+        this.dtdFile = dtdFile;
     }
 
     public void addSinger(String name) {
@@ -16,7 +20,7 @@ public class Application {
         collection.addAlbum(new Album(collection.getNextAlbumId(), singer, name, year, genre));
     }
 
-    public void test() {
+    public void fillCollection1() {
         addSinger("singer_0");
         addAlbumToPrevSinger("album_0_0", 2012, "Metal0");
         addAlbumToPrevSinger("album_0_1", 2014, "Pop0");
@@ -31,12 +35,31 @@ public class Application {
         addAlbumToPrevSinger("album_2_0", 2212, "Metal2");
         addAlbumToPrevSinger("album_2_1", 2214, "Pop2");
         addAlbumToPrevSinger("album_2_2", 2218, "Rock2");
+    }
 
-        System.out.println(collection.toXmlFormattedString(dtdPath));
-        collection.toXmlFile("files/xml_file.xml", dtdPath);
+    public void test1() {
+        fillCollection1();
+        System.out.println(collection.toXmlFormattedString(dtdFile));
+        collection.toXmlFile(xmlFile, dtdFile);
+    }
+
+    public void test2() {
+        fillCollection1();
+        String str1 = collection.toXmlString(dtdFile);
+
+        for (int i=0; i<100; i++) {
+            collection.toXmlFile(xmlFile, dtdFile);
+            collection.clear();
+            collection.fromXmlFile(xmlFile, dtdFile);
+        }
+
+        String str2 = collection.toXmlString(dtdFile);
+        if (!str1.equals(str2)) {
+            throw new RuntimeException();
+        }
     }
 
     public static void main(String[] args) {
-        new Application("files/dtd_file.dtd").test();
+        new Application(new File("files", "dtd_file.dtd")).test2();
     }
 }

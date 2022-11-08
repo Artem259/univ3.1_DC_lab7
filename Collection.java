@@ -9,6 +9,7 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import org.xml.sax.SAXException;
 
 public class Collection {
     private final List<Singer> singers;
@@ -60,6 +61,11 @@ public class Collection {
             res.get(index).add(album);
         }
         return res;
+    }
+
+    public void clear() {
+        singers.clear();
+        albums.clear();
     }
 
     // 5
@@ -167,7 +173,7 @@ public class Collection {
         return new ArrayList<>(singers);
     }
 
-    public String toXmlString(String dtdPath) {
+    public String toXmlString(File dtdFile) {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         Document doc = null;
         try {
@@ -202,7 +208,7 @@ public class Collection {
         try {
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
-            transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, dtdPath);
+            transformer.setOutputProperty(OutputKeys.DOCTYPE_SYSTEM, dtdFile.getAbsolutePath());
             transformer.transform(new DOMSource(doc), new StreamResult(sw));
         } catch (TransformerException e) {
             e.printStackTrace();
@@ -211,10 +217,10 @@ public class Collection {
         return sw.toString();
     }
 
-    public String toXmlFormattedString(String dtdPath) {
+    public String toXmlFormattedString(File dtdFile) {
         StringWriter sw = new StringWriter();
         try {
-            String str = toXmlString(dtdPath);
+            String str = toXmlString(dtdFile);
             TransformerFactory factory = TransformerFactory.newInstance();
             Transformer transformer = factory.newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -227,16 +233,52 @@ public class Collection {
         return sw.toString();
     }
 
-    public void toXmlFile(String xmlPath, String dtdPath) {
+    public void toXmlFile(File xmlFile, File dtdFile) {
         try {
-            String str = toXmlString(dtdPath);
+            String str = toXmlString(dtdFile);
             TransformerFactory factory = TransformerFactory.newInstance();
             Transformer transformer = factory.newTransformer();
             Source strSource = new StreamSource(new StringReader(str));
-            Result fileResult = new StreamResult(new File(xmlPath));
+            Result fileResult = new StreamResult(xmlFile.getAbsoluteFile());
             transformer.transform(strSource, fileResult);
         } catch (TransformerException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void fromXmlFile(File xmlFile, File dtdFile) {
+        clear();
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        Document doc = null;
+        try {
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            doc = db.parse(xmlFile);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
+            e.printStackTrace();
+        }
+        assert doc != null;
+
+        Element collectionElem = doc.getDocumentElement();
+        if (!collectionElem.getTagName().equals("collection")) {
+            throw new RuntimeException();
+        }
+        NodeList singesList = collectionElem.getElementsByTagName("singer");
+        for (int i=0; i<singesList.getLength(); i++) {
+            Element singerElem = (Element) singesList.item(i);
+            Integer singerId = Integer.valueOf(singerElem.getAttribute("id"));
+            String singerName = singerElem.getAttribute("name");
+            Singer singer = new Singer(singerId, singerName);
+            addSinger(singer);
+            NodeList albumsList = singerElem.getElementsByTagName("album");
+            for (int j=0; j<albumsList.getLength(); j++) {
+                Element albumElem = (Element) albumsList.item(j);
+                Integer albumId = Integer.valueOf(albumElem.getAttribute("id"));
+                String albumName = albumElem.getAttribute("name");
+                Integer albumYear = Integer.valueOf(albumElem.getAttribute("year"));
+                String albumGenre = albumElem.getAttribute("genre");
+                Album album = new Album(albumId, singer, albumName, albumYear, albumGenre);
+                addAlbum(album);
+            }
         }
     }
 }
