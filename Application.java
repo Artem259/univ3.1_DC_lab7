@@ -1,14 +1,19 @@
 import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class Application {
     private final Collection collection;
     private final File xmlFile;
     private final File dtdFile;
+    private final Connection connection;
 
-    public Application(File dtdFile) {
+    public Application(File dtdFile, Connection connection) {
         this.collection = new Collection();
         this.xmlFile = new File("files", "xml_file.xml");
         this.dtdFile = dtdFile;
+        this.connection = connection;
     }
 
     public void addSinger(String name) {
@@ -60,7 +65,40 @@ public class Application {
         }
     }
 
+    public void test3() {
+        fillCollection1();
+
+        Database db = new Database(connection);
+        db.clear();
+
+        int s1 = db.addSinger(new Singer(null, "s1"));
+        int a1_1 = db.addAlbum(s1, new Album(null, null, "a1_1", 1000, "genre"));
+        int a1_2 = db.addAlbum(s1, new Album(null, null, "a1_2", 1000, "genre"));
+
+        int s2 = db.addSinger(new Singer(null, "s2"));
+        int a2_1 = db.addAlbum(s2, new Album(null, null, "a2_1", 1000, "genre"));
+        int a2_2 = db.addAlbum(s2, new Album(null, null, "a2_2", 1000, "genre"));
+
+        boolean b;
+        b = db.deleteAlbumById(a2_2);
+        b = b && db.deleteSingerById(s1);
+
+        b = b && db.updateSinger(new Singer(s2, "s2_new"));
+        b = b && db.updateAlbum(new Album(a2_1, null, "a2_1_new", 2000, "genre_new"));
+
+        if (!b) {
+            throw new RuntimeException();
+        }
+    }
+
     public static void main(String[] args) {
-        new Application(new File("files", "dtd_file.dtd")).test2();
+        try {
+            String url = "Jdbc:mysql://localhost:3306/store";
+            Connection connection = DriverManager.getConnection(url, "root", "mypassword");
+            new Application(new File("files", "dtd_file.dtd"), connection).test3();
+            connection.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
