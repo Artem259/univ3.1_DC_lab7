@@ -3,6 +3,7 @@
 /out/
 /files/*
 !/files/dtd_file.dtd
+!/files/database_model.mwb
 
 */*.iml
 */.idea/
