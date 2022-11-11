@@ -50,21 +50,6 @@ public class Collection {
         return res;
     }
 
-    private List<List<Album>> getSortedAlbums() {
-        List<List<Album>> res = new ArrayList<>();
-        for (int i=0; i<singers.size(); i++) {
-            res.add(new ArrayList<>());
-        }
-        for (Album album : albums) {
-            Integer index = indexOfSingerById(album.getSinger().getId());
-            if (index == null) {
-                throw new RuntimeException();
-            }
-            res.get(index).add(album);
-        }
-        return res;
-    }
-
     public void clear() {
         singers.clear();
         albums.clear();
@@ -88,7 +73,7 @@ public class Collection {
     }
 
     public Integer getNextSingerId() {
-        int res = -1;
+        int res = 0;
         for (Singer singer : singers) {
             res = Math.max(res, singer.getId());
         }
@@ -96,7 +81,7 @@ public class Collection {
     }
 
     public Integer getNextAlbumId() {
-        int res = -1;
+        int res = 0;
         for (Album album : albums) {
             res = Math.max(res, album.getId());
         }
@@ -173,6 +158,21 @@ public class Collection {
     // 9
     public List<Singer> getSingersCopy() {
         return new ArrayList<>(singers);
+    }
+
+    public List<List<Album>> getSortedAlbums() {
+        List<List<Album>> res = new ArrayList<>();
+        for (int i=0; i<singers.size(); i++) {
+            res.add(new ArrayList<>());
+        }
+        for (Album album : albums) {
+            Integer index = indexOfSingerById(album.getSinger().getId());
+            if (index == null) {
+                throw new RuntimeException();
+            }
+            res.get(index).add(album);
+        }
+        return res;
     }
 
     public String toXmlString(File dtdFile) {

@@ -7,13 +7,13 @@ public class Application {
     private final Collection collection;
     private final File xmlFile;
     private final File dtdFile;
-    private final Connection connection;
+    private final Database db;
 
     public Application(File dtdFile, Connection connection) {
         this.collection = new Collection();
         this.xmlFile = new File("files", "xml_file.xml");
         this.dtdFile = dtdFile;
-        this.connection = connection;
+        this.db = new Database(connection);
     }
 
     public void addSinger(String name) {
@@ -26,21 +26,26 @@ public class Application {
     }
 
     public void fillCollection1() {
-        addSinger("singer_0");
-        addAlbumToPrevSinger("album_0_0", 2012, "Metal0");
-        addAlbumToPrevSinger("album_0_1", 2014, "Pop0");
-        addAlbumToPrevSinger("album_0_2", 2018, "Rock0");
-
         addSinger("singer_1");
-        addAlbumToPrevSinger("album_1_0", 2112, "Metal1");
-        addAlbumToPrevSinger("album_1_1", 2114, "Pop1");
-        addAlbumToPrevSinger("album_1_2", 2118, "Rock1");
+        addAlbumToPrevSinger("album_1_1", 2011, "Metal1");
+        addAlbumToPrevSinger("album_1_2", 2012, "Pop1");
+        addAlbumToPrevSinger("album_1_3", 2013, "Rock1");
 
         addSinger("singer_2");
+        addAlbumToPrevSinger("album_2_1", 2021, "Metal2");
+        addAlbumToPrevSinger("album_2_2", 2022, "Pop2");
+        addAlbumToPrevSinger("album_2_3", 2023, "Rock2");
 
         addSinger("singer_3");
-        addAlbumToPrevSinger("album_3_0", 2312, "Metal3");
-        addAlbumToPrevSinger("album_3_1", 2314, "Pop3");
+
+        addSinger("singer_4");
+        addAlbumToPrevSinger("album_4_1", 2041, "Metal4");
+        addAlbumToPrevSinger("album_4_2", 2042, "Pop4");
+    }
+
+    public boolean fillDatabase(Collection collection) {
+        db.clear();
+        return db.addCollection(collection);
     }
 
     public void test1() {
@@ -67,28 +72,12 @@ public class Application {
 
     public void test3() {
         fillCollection1();
-
-        Database db = new Database(connection);
-        db.clear();
-
-        int s1 = db.addSinger(new Singer(null, "s1"));
-        int a1_1 = db.addAlbum(s1, new Album(null, null, "a1_1", 1000, "genre"));
-        int a1_2 = db.addAlbum(s1, new Album(null, null, "a1_2", 1000, "genre"));
-
-        int s2 = db.addSinger(new Singer(null, "s2"));
-        int a2_1 = db.addAlbum(s2, new Album(null, null, "a2_1", 1000, "genre"));
-        int a2_2 = db.addAlbum(s2, new Album(null, null, "a2_2", 1000, "genre"));
-
-        boolean b;
-        b = db.deleteAlbumById(a2_2);
-        b = b && db.deleteSingerById(s1);
-
-        b = b && db.updateSinger(new Singer(s2, "s2_new"));
-        b = b && db.updateAlbum(new Album(a2_1, null, "a2_1_new", 2000, "genre_new"));
-
-        if (!b) {
+        if (!fillDatabase(collection)) {
             throw new RuntimeException();
         }
+
+        Collection c = db.getAlbumsOfSingerById(4);
+        System.out.println(c.toXmlFormattedString(dtdFile));
     }
 
     public static void main(String[] args) {

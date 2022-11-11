@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.List;
 
 public class Database {
     private final Connection connection;
@@ -34,6 +35,68 @@ public class Database {
     public boolean clear() {
         String sql = "DELETE FROM singer";
         return execUpdateDelete(sql);
+    }
+
+    public Singer getSingerById(int id) {
+        String sql = "SELECT * FROM singer WHERE id = " + id;
+        try {
+            Statement stm = connection.createStatement();
+            ResultSet rs = stm.executeQuery(sql);
+
+            Singer singer = null;
+            if (rs.next()) {
+                String name = rs.getString("name");
+                singer = new Singer(id, name);
+            }
+
+            rs.close();
+            return singer;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Album getAlbumById(int id) {
+        String sql = "SELECT * FROM album WHERE id = " + id;
+        try {
+            Statement stm = connection.createStatement();
+            ResultSet rs = stm.executeQuery(sql);
+
+            Album album = null;
+            if (rs.next()) {
+                String name = rs.getString("name");
+                Singer singer = getSingerById(rs.getInt("singer_id"));
+                Integer year = rs.getInt("year");
+                String genre = rs.getString("genre");
+                album = new Album(id, singer, name, year, genre);
+            }
+
+            rs.close();
+            return album;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public boolean addCollection(Collection collection) {
+        List<Singer> singers = collection.getSingersCopy();
+        List<List<Album>> sortedAlbums = collection.getSortedAlbums();
+        boolean flag = true;
+        for (int i=0; i<singers.size(); i++) {
+            Singer singer = singers.get(i);
+            if (addSinger(singer) == -1) {
+                flag = false;
+            }
+            for (int j=0; j<sortedAlbums.get(i).size(); j++) {
+                Album album = sortedAlbums.get(i).get(j);
+                if (addAlbum(singer.getId(), album) == -1) {
+                    flag = false;
+                }
+            }
+        }
+        return flag;
     }
 
     // 1
@@ -97,21 +160,65 @@ public class Database {
 /*
     // 6
     public Integer countAlbumsOfSingerById(int id) {
-
+        // todo
     }
 
     // 7
-    public List<Album> getAlbumsCopy() {
-
+    public Collection getAll() {
+        // getAllSingers + ...
     }
-
+*/
     // 8
-    public List<Album> getAlbumsOfSingerById(int id) {
+    public Collection getAlbumsOfSingerById(int id) {
+        String sql = "SELECT * FROM (singer INNER JOIN album on singer.id = album.singer_id) " +
+                "WHERE singer_id = " + id;
+        try {
+            Statement stm = connection.createStatement();
+            ResultSet rs = stm.executeQuery(sql);
 
+            Collection collection = new Collection();
+            Singer singer = getSingerById(id);
+            if (singer == null) {
+                return collection;
+            }
+            collection.addSinger(singer);
+            while (rs.next()) {
+                Integer albumId = rs.getInt("album.id");
+                String name = rs.getString("album.name");
+                Integer year = rs.getInt("year");
+                String genre = rs.getString("genre");
+                Album album = new Album(albumId, singer, name, year, genre);
+                collection.addAlbum(album);
+            }
+
+            rs.close();
+            return collection;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     // 9
-    public List<Singer> getSingersCopy() {
+    public Collection getAllSingers() {
+        String sql = "SELECT * FROM singer";
+        try {
+            Statement stm = connection.createStatement();
+            ResultSet rs = stm.executeQuery(sql);
 
-    }*/
+            Collection collection = new Collection();
+            while (rs.next()) {
+                Integer id = rs.getInt("id");
+                String name = rs.getString("name");
+                Singer singer = new Singer(id, name);
+                collection.addSinger(singer);
+            }
+
+            rs.close();
+            return collection;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }
