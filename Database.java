@@ -157,17 +157,46 @@ public class Database {
                 "where id = " + album.getId();
         return execUpdateDelete(sql);
     }
-/*
+
     // 6
     public Integer countAlbumsOfSingerById(int id) {
-        // todo
+        Collection collection = getAlbumsOfSingerById(id);
+        if (collection == null) {
+            return null;
+        }
+        return collection.countAlbumsOfSingerById(id);
     }
 
     // 7
     public Collection getAll() {
-        // getAllSingers + ...
+        Collection collection = getAllSingers();
+        if (collection == null) {
+            return null;
+        }
+
+        String sql = "SELECT * FROM album";
+        try {
+            Statement stm = connection.createStatement();
+            ResultSet rs = stm.executeQuery(sql);
+
+            while (rs.next()) {
+                int albumId = rs.getInt("id");
+                int singerId = rs.getInt("singer_id");
+                String name = rs.getString("name");
+                Integer year = rs.getInt("year");
+                String genre = rs.getString("genre");
+                Album album = new Album(albumId, collection.getSingerById(singerId), name, year, genre);
+                collection.addAlbum(album);
+            }
+
+            rs.close();
+            return collection;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
-*/
+
     // 8
     public Collection getAlbumsOfSingerById(int id) {
         String sql = "SELECT * FROM (singer INNER JOIN album on singer.id = album.singer_id) " +
@@ -183,7 +212,7 @@ public class Database {
             }
             collection.addSinger(singer);
             while (rs.next()) {
-                Integer albumId = rs.getInt("album.id");
+                int albumId = rs.getInt("album.id");
                 String name = rs.getString("album.name");
                 Integer year = rs.getInt("year");
                 String genre = rs.getString("genre");
@@ -208,7 +237,7 @@ public class Database {
 
             Collection collection = new Collection();
             while (rs.next()) {
-                Integer id = rs.getInt("id");
+                int id = rs.getInt("id");
                 String name = rs.getString("name");
                 Singer singer = new Singer(id, name);
                 collection.addSinger(singer);

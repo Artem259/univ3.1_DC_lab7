@@ -76,8 +76,11 @@ public class Application {
             throw new RuntimeException();
         }
 
-        Collection c = db.getAlbumsOfSingerById(4);
+        Collection c = db.getAll();
         System.out.println(c.toXmlFormattedString(dtdFile));
+        if (!c.toXmlString(dtdFile).equals(collection.toXmlString(dtdFile))) {
+            throw new RuntimeException();
+        }
     }
 
     public static void main(String[] args) {
