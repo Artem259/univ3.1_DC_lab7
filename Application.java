@@ -76,9 +76,31 @@ public class Application {
             throw new RuntimeException();
         }
 
-        Collection c = db.getAll();
-        System.out.println(c.toXmlFormattedString(dtdFile));
-        if (!c.toXmlString(dtdFile).equals(collection.toXmlString(dtdFile))) {
+        Singer singer = new Singer(100, "singer_100");
+        Album album = new Album(100, singer, "album_100_100", 2100, "Metal100");
+
+        // ----------------------------------
+
+        collection.addSinger(singer);
+        db.addSinger(singer);
+
+        collection.deleteAlbumById(1);
+        db.deleteAlbumById(1);
+
+        collection.deleteSingerById(2);
+        db.deleteSingerById(2);
+
+        collection.addAlbum(album);
+        db.addAlbum(singer.getId(), album);
+
+        // ----------------------------------
+
+        Collection dbCollection = db.getAll();
+        System.out.println("\n" + dbCollection.toXmlFormattedString(dtdFile));
+        dbCollection.toXmlFile(xmlFile, dtdFile);
+
+        if (!dbCollection.toXmlString(dtdFile).equals(collection.toXmlString(dtdFile))) {
+            System.out.println("\n" + collection.toXmlFormattedString(dtdFile));
             throw new RuntimeException();
         }
     }

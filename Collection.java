@@ -40,9 +40,9 @@ public class Collection {
         return null;
     }
 
-    private List<Integer> indicesOfAlbumsOfSingerById(int id) {
+    private List<Integer> sortedIndicesOfAlbumsOfSingerById(int id) {
         List<Integer> res = new ArrayList<>();
-        for (int i=0; i<albums.size(); i++) {
+        for (int i=albums.size()-1; i>=0; i--) {
             if (albums.get(i).getSinger().getId() == id) {
                 res.add(i);
             }
@@ -101,7 +101,7 @@ public class Collection {
         Integer i = indexOfSingerById(id);
         if (i != null) {
             singers.remove(i.intValue());
-            List<Integer> indices = indicesOfAlbumsOfSingerById(id);
+            List<Integer> indices = sortedIndicesOfAlbumsOfSingerById(id);
             for (Integer index : indices) {
                 albums.remove(index.intValue());
             }
@@ -136,7 +136,7 @@ public class Collection {
         if (indexOfSingerById(id) == null) {
             return null;
         }
-        List<Integer> indices = indicesOfAlbumsOfSingerById(id);
+        List<Integer> indices = sortedIndicesOfAlbumsOfSingerById(id);
         return indices.size();
     }
 
