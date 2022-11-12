@@ -43,9 +43,11 @@ public class Application {
         addAlbumToPrevSinger("album_4_2", 2042, "Pop4");
     }
 
-    public boolean fillDatabase(Collection collection) {
+    public void fillDatabase(Collection collection) {
         db.clear();
-        return db.addCollection(collection);
+        if (!db.addCollection(collection)) {
+            throw new RuntimeException();
+        }
     }
 
     public void test1() {
@@ -72,9 +74,13 @@ public class Application {
 
     public void test3() {
         fillCollection1();
-        if (!fillDatabase(collection)) {
-            throw new RuntimeException();
-        }
+        fillDatabase(collection);
+
+        collection.toXmlFile(xmlFile, dtdFile);
+        collection.clear();
+        collection.fromXmlFile(xmlFile);
+
+        System.out.println("\n" + collection.toXmlFormattedString(dtdFile));
 
         Singer singer = new Singer(100, "singer_100");
         Album album = new Album(100, singer, "album_100_100", 2100, "Metal100");
@@ -97,7 +103,6 @@ public class Application {
 
         Collection dbCollection = db.getAll();
         System.out.println("\n" + dbCollection.toXmlFormattedString(dtdFile));
-        dbCollection.toXmlFile(xmlFile, dtdFile);
 
         if (!dbCollection.toXmlString(dtdFile).equals(collection.toXmlString(dtdFile))) {
             System.out.println("\n" + collection.toXmlFormattedString(dtdFile));
